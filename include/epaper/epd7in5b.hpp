@@ -162,7 +162,6 @@ public:
         DelayMs(100);
         WaitUntilIdle();
     }
-    void DisplayImage(FILE *image){};
 
     void SendCommand(unsigned char command)
     {

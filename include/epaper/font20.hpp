@@ -1,8 +1,5 @@
 #pragma once
-class font20Table
-{
-public:
-static constexpr  uint8_t Font20_Table[] = 
+const uint8_t Font20_Table[] __attribute__((section("font"))) =
 {
 	// @0 ' ' (14 pixels wide)
 	0x00, 0x00, //               
@@ -2096,6 +2093,4 @@ static constexpr  uint8_t Font20_Table[] =
 };
 
 
-
-};
 

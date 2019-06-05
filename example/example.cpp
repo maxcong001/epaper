@@ -30,6 +30,7 @@ int main(void)
     /* For simplicity, the arguments are explicit numerical coordinates */
     paint.SetRotate(ROTATE_0);
     /* Write strings to the buffer */
+
     paint.DrawFilledRectangle(0, 6, 640, 30, EPDPAINT_RED);//x1,y1,x2,y2,Diagonal point
     paint.DrawStringAt(20, 10, "---Max's to do list---", &Font24, EPDPAINT_WHITE);//x,y
     paint.DrawStringAt(20, 40, "1. support tafe sdh testing  ", &Font24, EPDPAINT_BLACK);//x,y
@@ -43,8 +44,8 @@ int main(void)
     paint.DrawStringAt(20, 290, "",&Font24, EPDPAINT_BLACK);//x,y
     paint.DrawStringAt(20, 320, "",&Font24, EPDPAINT_BLACK);//x,y
 
-    /* Display the frame buffer */
-    epd.DisplayFrame1(frame_buffer);
+	epd.DisplayFrame1(frame_buffer);
+	
     while(1);
     return 0;
 }
