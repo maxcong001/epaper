@@ -12,45 +12,42 @@
 #define EPDPAINT_WHITE 0x3
 
 #include "fonts.hpp"
+#include "epd7in5b.hpp"
+#include <string.h>
 
 class Paint
 {
 public:
-    Paint(unsigned char *image, int width, int height)
+    Paint() = delete;
+    Paint(int width, int height) : rotate(ROTATE_0)
     {
-        this->rotate = ROTATE_0;
-        this->image = image;
-        /* 1 byte = 8 pixels, so the width should be the multiple of 8 */
-        this->width = width % 8 ? width + 8 - (width % 8) : width;
+
+        /* 1 byte = 2 pixels, so the width should be the multiple of 2 */
+        this->width = width % 2 ? width + 2 - (width % 2) : width;
         this->height = height;
+        this->image = (unsigned char *)malloc(this->width / 2 * (this->height));
+    }
+    ~Paint()
+    {
+        free(this->image);
+    }
+    int init()
+    {
+        return epd.Init();
     }
 
     void Clear(int color)
     {
-        for (int x = 0; x < this->width; x++)
-        {
-            for (int y = 0; y < this->height; y++)
-            {
-                DrawAbsolutePixel(x, y, color);
-            }
-        }
+        memset(this->image, 0, this->width / 2 * (this->height));
     }
     int GetWidth(void)
     {
         return this->width;
     }
-    void SetWidth(int width)
-    {
-        this->width = width % 8 ? width + 8 - (width % 8) : width;
-    }
 
     int GetHeight(void)
     {
         return this->height;
-    }
-    void SetHeight(int height)
-    {
-        this->height = height;
     }
     int GetRotate(void)
     {
@@ -64,6 +61,10 @@ public:
     unsigned char *GetImage(void)
     {
         return this->image;
+    }
+    void SetImage(unsigned char *imageSrc)
+    {
+        memcpy(this->image, imageSrc, this->width / 2 * (this->height));
     }
     void DrawAbsolutePixel(int x, int y, int color)
     {
@@ -307,7 +308,13 @@ public:
         } while (x_pos <= 0);
     }
 
+    void DisplayFrame()
+    {
+        epd.DisplayFrame1(GetImage());
+    }
+
 private:
+    Epd epd;
     unsigned char *image;
     int width;
     int height;
