@@ -1,6 +1,6 @@
 #pragma once
 
-#include "epdif.hpp"
+#include "BCM2835Driver.hpp"
 #include "stdio.h"
 
 // Display resolution
@@ -52,13 +52,13 @@ extern const unsigned char lut_bw[];
 extern const unsigned char lut_bb[];
 extern const unsigned char lut_wb[];
 
-class Epd : EpdIf
+class Epd7in5bDriver : BCM2835Driver
 {
 public:
     int width;
     int height;
 
-    Epd()
+    Epd7in5bDriver()
     {
         reset_pin = RST_PIN;
         dc_pin = DC_PIN;

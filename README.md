@@ -17,6 +17,9 @@ note: need to change this API to font size enum.(8-12-16-20-24)
 11. unsigned char *GetImage(void)
 12. void DisplayFrame1(const unsigned char *frame_buffer)
 
+## bcm driver 
+http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz
+
 enjoy
 
 Max

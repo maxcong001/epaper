@@ -12,7 +12,7 @@
 #define EPDPAINT_WHITE 0x3
 
 #include "fonts.hpp"
-#include "epd7in5b.hpp"
+#include "Epd7in5bDriver.hpp"
 #include <string.h>
 
 class Paint
@@ -21,7 +21,6 @@ public:
     Paint() = delete;
     Paint(int width, int height) : rotate(ROTATE_0)
     {
-
         /* 1 byte = 2 pixels, so the width should be the multiple of 2 */
         this->width = width % 2 ? width + 2 - (width % 2) : width;
         this->height = height;
@@ -314,7 +313,7 @@ public:
     }
 
 private:
-    Epd epd;
+    Epd7in5bDriver epd;
     unsigned char *image;
     int width;
     int height;

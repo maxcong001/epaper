@@ -6,7 +6,7 @@
 #define CS_PIN 8
 #define BUSY_PIN 24
 
-class EpdIf
+class BCM2835Driver
 {
 public:
     static int IfInit(void)
