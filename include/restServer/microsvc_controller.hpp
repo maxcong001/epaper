@@ -24,28 +24,86 @@
 // SOFTWARE.
 //
 
-#pragma once 
+#pragma once
 
-#include <basic_controller.hpp>
+#include "basic_controller.hpp"
 
 using namespace cfx;
 
-class MicroserviceController : public BasicController, Controller {
+class MicroserviceController : public BasicController, Controller
+{
 public:
     MicroserviceController() : BasicController() {}
     ~MicroserviceController() {}
-    void handleGet(http_request message) override;
-    void handlePut(http_request message) override;
-    void handlePost(http_request message) override;
-    void handlePatch(http_request message) override;
-    void handleDelete(http_request message) override;
-    void handleHead(http_request message) override;
-    void handleOptions(http_request message) override;
-    void handleTrace(http_request message) override;
-    void handleConnect(http_request message) override;
-    void handleMerge(http_request message) override;
-    void initRestOpHandlers() override;    
+    void handleGet(http_request message) override
+    {
+        auto path = requestPath(message);
+        if (!path.empty())
+        {
+            if (path[0] == "service" && path[1] == "test")
+            {
+                auto response = json::value::object();
+                response["version"] = json::value::string("0.1.1");
+                response["status"] = json::value::string("ready!");
+                message.reply(status_codes::OK, response);
+            }
+        }
+        else
+        {
+            message.reply(status_codes::NotFound);
+        }
+    }
+    void handlePut(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::PUT));
+    }
+    void handlePost(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::POST));
+    }
+    void handlePatch(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::PATCH));
+    }
+    void handleDelete(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::DEL));
+    }
+    void handleHead(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::HEAD));
+    }
+    void handleOptions(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::OPTIONS));
+    }
+    void handleTrace(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::TRCE));
+    }
+    void handleConnect(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::CONNECT));
+    }
+    void handleMerge(http_request message) override
+    {
+        message.reply(status_codes::NotImplemented, responseNotImpl(methods::MERGE));
+    }
+    void initRestOpHandlers() override
+    {
+        _listener.support(methods::GET, std::bind(&MicroserviceController::handleGet, this, std::placeholders::_1));
+        _listener.support(methods::PUT, std::bind(&MicroserviceController::handlePut, this, std::placeholders::_1));
+        _listener.support(methods::POST, std::bind(&MicroserviceController::handlePost, this, std::placeholders::_1));
+        _listener.support(methods::DEL, std::bind(&MicroserviceController::handleDelete, this, std::placeholders::_1));
+        _listener.support(methods::PATCH, std::bind(&MicroserviceController::handlePatch, this, std::placeholders::_1));
+    }
 
 private:
-    static json::value responseNotImpl(const http::method & method);
+    static json::value responseNotImpl(const http::method &method)
+    {
+        auto response = json::value::object();
+        response["serviceName"] = json::value::string("C++ Mircroservice Sample");
+        response["http_method"] = json::value::string(method);
+        return response;
+    }
 };
