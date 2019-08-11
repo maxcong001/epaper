@@ -35,6 +35,17 @@ class MicroserviceController : public BasicController, Controller
 public:
     MicroserviceController() : BasicController() {}
     ~MicroserviceController() {}
+
+
+    /*
+        pplx::task<json::value> extract_json(bool ignore_content_type = false) const
+    {
+        auto impl = _m_impl;
+        return pplx::create_task(_m_impl->_get_data_available()).then([impl, ignore_content_type](utility::size64_t) {
+            return impl->_extract_json(ignore_content_type);
+        });
+    }
+*/
     void handleGet(http_request message) override
     {
         auto path = requestPath(message);
