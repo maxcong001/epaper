@@ -18,26 +18,45 @@
 class Paint
 {
 public:
-    Paint() = delete;
-    Paint(int width, int height) : rotate(ROTATE_0)
+    Paint() : rotate(ROTATE_0), width(EPD_WIDTH), height(EPD_HEIGHT)
     {
-        /* 1 byte = 2 pixels, so the width should be the multiple of 2 */
-        this->width = width % 2 ? width + 2 - (width % 2) : width;
-        this->height = height;
-        this->image = (unsigned char *)malloc(this->width / 2 * (this->height));
     }
     ~Paint()
     {
         free(this->image);
     }
+
     int init()
     {
+        this->image = (unsigned char *)malloc(this->width / 2 * (this->height));
+        Clear(EPDPAINT_WHITE);
         return epd.Init();
+    }
+
+    static Paint *getInstance()
+    {
+        static Paint *ins = new Paint();
+        return ins;
     }
 
     void Clear(int color)
     {
-        memset(this->image, 0, this->width / 2 * (this->height));
+        // to do
+        switch (color)
+        {
+        case EPDPAINT_BLACK:
+            memset(this->image, 0, this->width / 2 * (this->height));
+            break;
+        case EPDPAINT_RED:
+            memset(this->image, 0, this->width / 2 * (this->height));
+            break;
+        case EPDPAINT_WHITE:
+            memset(this->image, 0, this->width / 2 * (this->height));
+            break;
+        default:
+            /* do nothing */
+            break;
+        }
     }
     int GetWidth(void)
     {
