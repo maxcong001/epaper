@@ -62,7 +62,7 @@ public:
         }
         else
         {
-            endpointBuilder.set_host("127.0.0.1");
+            endpointBuilder.set_host("10.242.146.124");
         }
         endpointBuilder.set_port(endpointURI.port());
         endpointBuilder.set_path(endpointURI.path());

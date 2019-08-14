@@ -28,7 +28,7 @@
 #include <cpprest/http_msg.h>
 #include <basic_controller.hpp>
 #include "logger/logger.hpp"
-
+#include "epaper/epd7in5bpaint.hpp"
 using namespace cfx;
 
 class MicroserviceController : public BasicController, Controller
@@ -71,7 +71,7 @@ public:
         auto path = requestPath(message);
         if (!path.empty())
         {
-            if (path[0] == "image")
+            if (path[0] == "image" || path[0] == "string")
             {
                 web::json::value jValue;
                 try
@@ -157,14 +157,21 @@ public:
         BAD_REQUEST
 
     };
+    // need path not empty
     imageRet ProcessImage(web::json::value jValue, std::vector<utility::string_t> path, const http::method &method)
     {
         if (CHECK_LOG_LEVEL(debug))
         {
             __LOG(debug, "in function ProcessImage");
         }
+        Paint *globPaint = Paint::getInstance();
+        if (method == methods::POST || method == methods::GET)
+        {
+            globPaint->Clear();
+        }
+
         // if we go into this function. the path is not empty and the path start with image
-        if (path.size() > 1)
+        if (path[0] == "image")
         {
             if (path[1] == "line")
             {
@@ -174,6 +181,20 @@ public:
                 }
                 //{"colour":0,"positionx":[0,0],"positiony":[100,100]}
                 int colour = jValue.at("colour").as_integer();
+                /*
+                #define EPDPAINT_BLACK 0x0
+                #define EPDPAINT_RED 0x4
+                #define EPDPAINT_WHITE 0x3
+                */
+
+                if (colour != 0 && colour != 4 && colour != 3)
+                {
+                    if (CHECK_LOG_LEVEL(debug))
+                    {
+                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
+                    }
+                    colour = EPDPAINT_WHITE;
+                }
                 json::array posx = jValue.at("positionx").as_array();
                 json::array posy = jValue.at("positiony").as_array();
                 if (posx.size() != 2 || posy.size() != 2)
@@ -189,6 +210,7 @@ public:
                 {
                     __LOG(debug, "the line info is : " << posxx << ":" << posxy << ":" << posyx << ":" << posyy << ", colour is : " << colour);
                 }
+                globPaint->DrawLine(posxx, posxy, posyx, posyy, colour);
             }
             else if (path[1] == "circle")
             {
@@ -199,6 +221,20 @@ public:
                 //{"colour":0,"position":[0,0],"radius":100}
 
                 int colour = jValue.at("colour").as_integer();
+
+                bool fill = false;
+                if (jValue.has_field("fill"))
+                {
+                    fill = jValue.at("fill").as_bool();
+                }
+                if (colour != 0 && colour != 4 && colour != 3)
+                {
+                    if (CHECK_LOG_LEVEL(debug))
+                    {
+                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
+                    }
+                    colour = EPDPAINT_WHITE;
+                }
                 int radius = jValue.at("radius").as_integer();
                 json::array pos = jValue.at("position").as_array();
 
@@ -213,6 +249,14 @@ public:
                 {
                     __LOG(debug, "the circle info is : " << posx << ":" << posy << ", colour is : " << colour << ", radius is : " << radius);
                 }
+                if (fill)
+                {
+                    globPaint->DrawFilledCircle(posx, posy, radius, colour);
+                }
+                else
+                {
+                    globPaint->DrawCircle(posx, posy, radius, colour);
+                }
             }
             else if (path[1] == "rectangle")
             {
@@ -224,6 +268,20 @@ public:
                 }
 
                 int colour = jValue.at("colour").as_integer();
+
+                bool fill = false;
+                if (jValue.has_field("fill"))
+                {
+                    fill = jValue.at("fill").as_bool();
+                }
+                if (colour != 0 && colour != 4 && colour != 3)
+                {
+                    if (CHECK_LOG_LEVEL(debug))
+                    {
+                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
+                    }
+                    colour = EPDPAINT_WHITE;
+                }
                 int height = jValue.at("height").as_integer();
                 int wide = jValue.at("wide").as_integer();
                 json::array pos = jValue.at("position").as_array();
@@ -239,6 +297,14 @@ public:
                 {
                     __LOG(debug, "the rectangle info is : " << posx << ":" << posy << ", colour is : " << colour << ", height is : " << height << ", wide is : " << wide);
                 }
+                if (fill)
+                {
+                    globPaint->DrawFilledRectangle(posx, posy, posx + wide, posy + height, colour);
+                }
+                else
+                {
+                    globPaint->DrawRectangle(posx, posy, posx + wide, posy + height, colour);
+                }
             }
             else if (path[1] == "point")
             {
@@ -249,7 +315,14 @@ public:
                 }
 
                 int colour = jValue.at("colour").as_integer();
-
+                if (colour != 0 && colour != 4 && colour != 3)
+                {
+                    if (CHECK_LOG_LEVEL(debug))
+                    {
+                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
+                    }
+                    colour = EPDPAINT_WHITE;
+                }
                 json::array pos = jValue.at("position").as_array();
 
                 if (pos.size() != 2)
@@ -263,6 +336,7 @@ public:
                 {
                     __LOG(debug, "the point info is : " << posx << ":" << posy << ", colour is : " << colour);
                 }
+                globPaint->DrawPixel(posx, posy, colour);
             }
             else
             {
@@ -272,12 +346,74 @@ public:
                 }
                 return imageRet::NOT_SUPPORT;
             }
-            // now process post/get.......
-            if (method == methods::POST)
-            {
-            }
+
+            globPaint->DisplayFrame();
+
             return imageRet::SUCCESS;
         }
+        else if (path[0] == "string")
+        {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "in the string case");
+            }
+            //{"colour":0,"position":[0,0],"content":"test string", "font":8}
+
+            int colour = jValue.at("colour").as_integer();
+
+            if (colour != 0 && colour != 4 && colour != 3)
+            {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
+                }
+                colour = EPDPAINT_WHITE;
+            }
+
+            json::array pos = jValue.at("position").as_array();
+
+            if (pos.size() != 2)
+            {
+                return imageRet::BAD_REQUEST;
+            }
+            int posx = pos.at(0).as_integer();
+            int posy = pos.at(1).as_integer();
+
+            auto content = jValue.at("content").as_string();
+
+            int font = jValue.at("font").as_integer();
+            if (font == 8)
+            {
+                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font8, colour);
+            }
+            else if (font == 12)
+            {
+                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font12, colour);
+            }
+            else if (font == 16)
+            {
+                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font16, colour);
+            }
+            else if (font == 20)
+            {
+                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font20, colour);
+            }
+            else if (font == 24)
+            {
+                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font24, colour);
+            }
+            else
+            {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "unsupported font, font is : " << font);
+                }
+                return imageRet::BAD_REQUEST;
+            }
+            globPaint->DisplayFrame();
+            return imageRet::SUCCESS;
+        }
+
         else
         {
             // path.size  ==1 case

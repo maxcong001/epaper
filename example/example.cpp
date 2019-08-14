@@ -30,6 +30,7 @@
 #include "runtime_utils.hpp"
 #include "microsvc_controller.hpp"
 #include "logger/simple_logger.hpp"
+#include "epaper/epd7in5bpaint.hpp"
 
 using namespace web;
 using namespace cfx;

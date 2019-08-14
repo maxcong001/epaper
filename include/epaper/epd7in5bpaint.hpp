@@ -39,7 +39,7 @@ public:
         return ins;
     }
 
-    void Clear(int color)
+    void Clear(int color = EPDPAINT_WHITE)
     {
         // to do
         switch (color)
@@ -48,10 +48,10 @@ public:
             memset(this->image, 0, this->width / 2 * (this->height));
             break;
         case EPDPAINT_RED:
-            memset(this->image, 0, this->width / 2 * (this->height));
+            memset(this->image, 0x4444, this->width / 2 * (this->height));
             break;
         case EPDPAINT_WHITE:
-            memset(this->image, 0, this->width / 2 * (this->height));
+            memset(this->image, 0x30333, this->width / 2 * (this->height));
             break;
         default:
             /* do nothing */
@@ -334,7 +334,7 @@ public:
 private:
     Epd7in5bDriver epd;
     unsigned char *image;
+    int rotate;
     int width;
     int height;
-    int rotate;
 };

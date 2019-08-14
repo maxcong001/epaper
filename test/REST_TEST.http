@@ -1,20 +1,49 @@
 ###
-POST http://127.0.0.1:6502/v1/ivmero/api/image/line HTTP/1.1
+POST http://10.242.146.124:6502/v1/ivmero/api/image/line HTTP/1.1
 content-type: application/json
 
-{"colour":-1,"positionx":[0,0],"positiony":[100,100]}
+{"colour":4,"positionx":[100,100],"positiony":[200,200]}
+// red
 ###
-POST http://127.0.0.1:6502/v1/ivmero/api/image/circle HTTP/1.1
+POST http://10.242.146.124:6502/v1/ivmero/api/image/line HTTP/1.1
 content-type: application/json
 
-{"colour":1,"position":[0,0],"radius":100}
+{"colour":0,"positionx":[0,0],"positiony":[100,100]}
+// black
 ###
-POST http://127.0.0.1:6502/v1/ivmero/api/image/rectangle HTTP/1.1
+POST http://10.242.146.124:6502/v1/ivmero/api/image/circle HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[200,200],"radius":100}
+###
+POST http://10.242.146.124:6502/v1/ivmero/api/image/circle HTTP/1.1
+content-type: application/json
+
+{"colour":4,"position":[200,200],"radius":100, "fill":true}
+###
+POST http://10.242.146.124:6502/v1/ivmero/api/image/rectangle HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[0,0],"height":100,"wide":100}
 ###
-POST http://127.0.0.1:6502/v1/ivmero/api/image/point HTTP/1.1
+POST http://10.242.146.124:6502/v1/ivmero/api/image/rectangle HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[0,0],"height":100,"wide":100,"fill":true}
+###
+POST http://10.242.146.124:6502/v1/ivmero/api/image/point HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[0,0]}
+
+###
+POST http://10.242.146.124:6502/v1/ivmero/api/string HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[10,10],"content":"test string", "font":8}
+
+###
+POST http://10.242.146.124:6502/v1/ivmero/api/string HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[200,200],"content":"test string", "font":24}
