@@ -1,24 +1,34 @@
-# epaper
+# boost logger
+this is a logger function baseed on boost::log. to use it,just include logger.hpp.
 
-## driver open API
+the gole of this project is to provide a fast, easy to use logger function.
 
-1. void Clear(int color)
-2. void DrawCharAt(int x, int y, char ascii_char, const sFONT *font, int color)    
-note: need to change this API to font size enum.(8-12-16-20-24)
-3. void DrawCircle(int x, int y, int radius, int color)
-4. void DrawFilledCircle(int x, int y, int radius, int color)
-5. void DrawFilledRectangle(int x0, int y0, int x1, int y1, int color)
-6. void DrawRectangle(int x0, int y0, int x1, int y1, int color)
-7. void DrawLine(int x0, int y0, int x1, int y1, int color)
-8. void DrawStringAt(int x, int y, const char *text, const sFONT *font, int color)
-9.  void SetRotate(int rotate)
+## build
+just cmake and make
+## example
 
-10. 
-11. unsigned char *GetImage(void)
-12. void DisplayFrame1(const unsigned char *frame_buffer)
+just init log and set log level
+```
+#include "logger/logger.hpp"
 
-## bcm driver 
-http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz
+int main()
+{
+	std::unique_ptr<boost_logger> boostloggerUptr(new boost_logger());
+	INIT_LOGGER(boostloggerUptr);
+	SET_LOG_LEVEL(debug);
+	if (CHECK_LOG_LEVEL(critical))
+	{
+		__LOG(critical, "hello logger!"
+								<< "this is critical log");
+	}
+}
+```
+
+
+## dependancy
+
+boost C++11
+
 
 enjoy
 

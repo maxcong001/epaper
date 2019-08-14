@@ -28,6 +28,7 @@
 
 #include <string>
 #include <cpprest/http_listener.h>
+#include "restServer/network_utils.hpp"
 #include <pplx/pplxtasks.h>
 #include "controller.hpp"
 
@@ -58,6 +59,10 @@ public:
         else if (endpointURI.host() == "host_auto_ip6")
         {
             endpointBuilder.set_host(NetworkUtils::hostIP6());
+        }
+        else
+        {
+            endpointBuilder.set_host("127.0.0.1");
         }
         endpointBuilder.set_port(endpointURI.port());
         endpointBuilder.set_path(endpointURI.path());
