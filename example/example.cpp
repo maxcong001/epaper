@@ -44,7 +44,7 @@ int main(int argc, const char *argv[])
     }
     catch (std::exception &e)
     {
-        std::cerr << "somehitng wrong happen! :(" << '\n';
+        std::cerr << "something wrong happen! :(" << '\n';
     }
     catch (...)
     {
