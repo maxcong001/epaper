@@ -1,0 +1,111 @@
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/line HTTP/1.1
+content-type: application/json
+
+{"colour":4,"positionx":[200,200],"positiony":[400,400]}
+// red
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/line HTTP/1.1
+content-type: application/json
+
+{"colour":0,"positionx":[0,0],"positiony":[100,100]}
+// black
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/circle HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[200,200],"radius":100}
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/circle HTTP/1.1
+content-type: application/json
+
+{"colour":4,"position":[200,200],"radius":100, "fill":true}
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/rectangle HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[0,0],"height":100,"wide":100}
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/rectangle HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[0,0],"height":100,"wide":100,"fill":true}
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/point HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[0,0]}
+
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[10,10],"content":"test string", "font":8}
+
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
+content-type: application/json
+
+{"colour":0,"position":[200,200],"content":"test string", "font":24}
+###
+PUT http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
+content-type: application/json
+
+[
+  {
+    "string": {
+      "colour": 0,
+      "content": "test string",
+      "font": 24,
+      "position": [
+        400,
+        200
+      ]
+    }
+  },
+  {
+    "point": {
+      "colour": 0,
+      "position": [
+        100,
+        100
+      ]
+    }
+  },
+  {
+    "rectangle": {
+      "colour": 0,
+      "fill": true,
+      "height": 100,
+      "position": [
+        0,
+        0
+      ],
+      "wide": 100
+    }
+  },
+  {
+    "circle": {
+      "colour": 4,
+      "fill": true,
+      "position": [
+        200,
+        200
+      ],
+      "radius": 100
+    }
+  },
+  {
+    "line": {
+      "colour": 4,
+      "positionx": [
+        100,
+        100
+      ],
+      "positiony": [
+        400,
+        400
+      ]
+    }
+  }
+]

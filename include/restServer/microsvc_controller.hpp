@@ -61,60 +61,17 @@ public:
     }
     void handlePut(http_request message) override
     {
-        message.reply(status_codes::NotImplemented, responseNotImpl(methods::PUT));
+        handleMessage(message, methods::PUT);
     }
+
     void handlePost(http_request message) override
     {
-        if (CHECK_LOG_LEVEL(debug))
-        {
-            __LOG(debug, "get a post message : " << message.to_string());
-        }
-        auto path = requestPath(message);
-        if (!path.empty())
-        {
-            web::json::value jValue;
-            try
-            {
-                jValue = message.extract_json().get();
-            }
-            catch (const http_exception &e)
-            {
-                // Print error.
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "invalid json format, error is : " << e.what());
-                }
-                message.reply(status_codes::BadRequest);
-                return;
-            }
-            switch (ProcessImage(jValue, path, methods::POST))
-            {
-            case epaperRet::SUCCESS:
-                message.reply(status_codes::OK, jValue);
-                break;
-
-            case epaperRet::SUCCESS_CREATED:
-                message.reply(status_codes::Created, jValue);
-                break;
-            case epaperRet::NOT_SUPPORT:
-                message.reply(status_codes::NotFound);
-                break;
-            case epaperRet::BAD_REQUEST:
-                message.reply(status_codes::BadRequest);
-                break;
-            default:
-                message.reply(status_codes::BadRequest);
-            }
-        }
-        else
-        {
-            message.reply(status_codes::NotFound);
-        }
+        handleMessage(message, methods::POST);
     }
 
     void handlePatch(http_request message) override
     {
-        message.reply(status_codes::NotImplemented, responseNotImpl(methods::PATCH));
+        handleMessage(message, methods::PATCH);
     }
     void handleDelete(http_request message) override
     {
@@ -225,7 +182,49 @@ public:
             return epaperRet::NOT_SUPPORT;
         }
     }
-
+    void handleMessage(http_request message, const http::method &method)
+    {
+        auto path = requestPath(message);
+        if (!path.empty())
+        {
+            web::json::value jValue;
+            try
+            {
+                jValue = message.extract_json().get();
+            }
+            catch (const http_exception &e)
+            {
+                // Print error.
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "invalid json format, error is : " << e.what());
+                }
+                message.reply(status_codes::BadRequest);
+                return;
+            }
+            switch (ProcessImage(jValue, path, method))
+            {
+            case epaperRet::SUCCESS:
+                message.reply(status_codes::OK, jValue);
+                break;
+            case epaperRet::SUCCESS_CREATED:
+                message.reply(status_codes::Created, jValue);
+                break;
+            case epaperRet::NOT_SUPPORT:
+                message.reply(status_codes::NotFound);
+                break;
+            case epaperRet::BAD_REQUEST:
+                message.reply(status_codes::BadRequest);
+                break;
+            default:
+                message.reply(status_codes::BadRequest);
+            }
+        }
+        else
+        {
+            message.reply(status_codes::NotFound);
+        }
+    }
 private:
     static json::value responseNotImpl(const http::method &method)
     {
