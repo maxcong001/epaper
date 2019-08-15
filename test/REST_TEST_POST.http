@@ -53,58 +53,158 @@ content-type: application/json
 
 [
   {
-    "string": {
-      "colour": 0,
-      "content": "test string",
-      "font": 24,
-      "position": [
-        400,
-        200
-      ]
-    }
-  },
-  {
-    "point": {
-      "colour": 0,
-      "position": [
-        100,
-        100
-      ]
-    }
-  },
-  {
     "rectangle": {
-      "colour": 0,
+      "colour": 4,
       "fill": true,
-      "height": 100,
+      "height": 30,
       "position": [
         0,
         0
       ],
-      "wide": 100
+      "wide": 640
     }
   },
   {
-    "circle": {
+    "rectangle": {
       "colour": 4,
       "fill": true,
+      "height": 30,
       "position": [
-        200,
-        200
+        0,
+        194
       ],
-      "radius": 100
+      "wide": 640
     }
   },
   {
-    "line": {
-      "colour": 4,
-      "positionx": [
-        100,
+    "string": {
+      "colour": 3,
+      "content": "---Max's inprogress list---",
+      "font": 24,
+      "position": [
+        20,
+        10
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 3,
+      "content": "---Max's to do list---",
+      "font": 24,
+      "position": [
+        20,
+        200
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "1. FC000958 estimation",
+      "font": 24,
+      "position": [
+        20,
+        40
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "2. ",
+      "font": 24,
+      "position": [
+        20,
+        70
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "3. ",
+      "font": 24,
+      "position": [
+        20,
         100
-      ],
-      "positiony": [
-        400,
-        400
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "4. ",
+      "font": 24,
+      "position": [
+        20,
+        130
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "5. ",
+      "font": 24,
+      "position": [
+        20,
+        160
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "1. ",
+      "font": 24,
+      "position": [
+        20,
+        230
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "2. ",
+      "font": 24,
+      "position": [
+        20,
+        260
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "3. ",
+      "font": 24,
+      "position": [
+        20,
+        290
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "4. ",
+      "font": 24,
+      "position": [
+        20,
+        320
+      ]
+    }
+  },
+  {
+    "string": {
+      "colour": 0,
+      "content": "5. ",
+      "font": 24,
+      "position": [
+        20,
+        350
       ]
     }
   }
