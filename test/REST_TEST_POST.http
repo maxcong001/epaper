@@ -1,54 +1,54 @@
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/line HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/line HTTP/1.1
 content-type: application/json
 
-{"colour":4,"positionx":[200,200],"positiony":[400,400]}
+{"colour":4,"positionx":[100,100],"positiony":[200,200]}
 // red
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/line HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/line HTTP/1.1
 content-type: application/json
 
 {"colour":0,"positionx":[0,0],"positiony":[100,100]}
 // black
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/circle HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/circle HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[200,200],"radius":100}
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/circle HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/circle HTTP/1.1
 content-type: application/json
 
 {"colour":4,"position":[200,200],"radius":100, "fill":true}
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/rectangle HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/rectangle HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[0,0],"height":100,"wide":100}
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/rectangle HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/rectangle HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[0,0],"height":100,"wide":100,"fill":true}
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/point HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/point HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[0,0]}
 
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[10,10],"content":"test string", "font":8}
 
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[200,200],"content":"test string", "font":24}
 ###
-PATCH http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
+POST http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
 content-type: application/json
 
 [
