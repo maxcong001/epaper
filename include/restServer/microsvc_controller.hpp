@@ -29,6 +29,7 @@
 #include <basic_controller.hpp>
 #include "logger/logger.hpp"
 #include "epaper/epd7in5bpaint.hpp"
+#include "restServer/epaperProcessor.hpp"
 using namespace cfx;
 
 class MicroserviceController : public BasicController, Controller
@@ -71,41 +72,38 @@ public:
         auto path = requestPath(message);
         if (!path.empty())
         {
-            if (path[0] == "image" || path[0] == "string")
+            web::json::value jValue;
+            try
             {
-                web::json::value jValue;
-                try
-                {
-                    jValue = message.extract_json().get();
-                }
-                catch (const http_exception &e)
-                {
-                    // Print error.
-                    if (CHECK_LOG_LEVEL(debug))
-                    {
-                        __LOG(debug, "invalid json format, error is : " << e.what());
-                    }
-                    message.reply(status_codes::BadRequest);
-                    return;
-                }
-                switch (ProcessImage(jValue, path, methods::POST))
-                {
-                case imageRet::SUCCESS:
-                    message.reply(status_codes::Created, jValue);
-                    break;
-                case imageRet::NOT_SUPPORT:
-                    message.reply(status_codes::NotFound);
-                    break;
-                case imageRet::BAD_REQUEST:
-                    message.reply(status_codes::BadRequest);
-                    break;
-                default:
-                    message.reply(status_codes::BadRequest);
-                }
+                jValue = message.extract_json().get();
             }
-            else
+            catch (const http_exception &e)
             {
+                // Print error.
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "invalid json format, error is : " << e.what());
+                }
+                message.reply(status_codes::BadRequest);
+                return;
+            }
+            switch (ProcessImage(jValue, path, methods::POST))
+            {
+            case epaperRet::SUCCESS:
+                message.reply(status_codes::OK, jValue);
+                break;
+
+            case epaperRet::SUCCESS_CREATED:
+                message.reply(status_codes::Created, jValue);
+                break;
+            case epaperRet::NOT_SUPPORT:
                 message.reply(status_codes::NotFound);
+                break;
+            case epaperRet::BAD_REQUEST:
+                message.reply(status_codes::BadRequest);
+                break;
+            default:
+                message.reply(status_codes::BadRequest);
             }
         }
         else
@@ -150,193 +148,64 @@ public:
         _listener.support(methods::DEL, std::bind(&MicroserviceController::handleDelete, this, std::placeholders::_1));
         _listener.support(methods::PATCH, std::bind(&MicroserviceController::handlePatch, this, std::placeholders::_1));
     }
-    enum class imageRet
+    enum class epaperRet
     {
         SUCCESS = 0,
+        SUCCESS_CREATED,
         NOT_SUPPORT,
         BAD_REQUEST
 
     };
     // need path not empty
-    imageRet ProcessImage(web::json::value jValue, std::vector<utility::string_t> path, const http::method &method)
+    epaperRet ProcessImage(web::json::value jValue, std::vector<utility::string_t> path, const http::method &method)
     {
         if (CHECK_LOG_LEVEL(debug))
         {
             __LOG(debug, "in function ProcessImage");
         }
         Paint *globPaint = Paint::getInstance();
-        if (method == methods::POST || method == methods::GET)
+        if (method == methods::POST || method == methods::PUT)
         {
+            // for post, it means create
+            // for put, it means update and user provide the whole info
+            // so for these two methods, we need to clear first
             globPaint->Clear();
         }
 
         // if we go into this function. the path is not empty and the path start with image
-        if (path[0] == "image")
+        if (path[0] == "epaper")
         {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "path with epaper");
+            }
             if (path[1] == "line")
             {
                 if (CHECK_LOG_LEVEL(debug))
                 {
-                    __LOG(debug, "in the line case");
+                    __LOG(debug, "path with epaper/line");
                 }
-                //{"colour":0,"positionx":[0,0],"positiony":[100,100]}
-                int colour = jValue.at("colour").as_integer();
-                /*
-                #define EPDPAINT_BLACK 0x0
-                #define EPDPAINT_RED 0x4
-                #define EPDPAINT_WHITE 0x3
-                */
-
-                if (colour != 0 && colour != 4 && colour != 3)
-                {
-                    if (CHECK_LOG_LEVEL(debug))
-                    {
-                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
-                    }
-                    colour = EPDPAINT_WHITE;
-                }
-                json::array posx = jValue.at("positionx").as_array();
-                json::array posy = jValue.at("positiony").as_array();
-                if (posx.size() != 2 || posy.size() != 2)
-                {
-                    return imageRet::BAD_REQUEST;
-                }
-                int posxx = posx.at(0).as_integer();
-                int posxy = posx.at(1).as_integer();
-                int posyx = posy.at(0).as_integer();
-                int posyy = posy.at(1).as_integer();
-
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "the line info is : " << posxx << ":" << posxy << ":" << posyx << ":" << posyy << ", colour is : " << colour);
-                }
-                globPaint->DrawLine(posxx, posxy, posyx, posyy, colour);
+                epaperProcessor::processLine(jValue);
             }
             else if (path[1] == "circle")
             {
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "in the circle case");
-                }
-                //{"colour":0,"position":[0,0],"radius":100}
-
-                int colour = jValue.at("colour").as_integer();
-
-                bool fill = false;
-                if (jValue.has_field("fill"))
-                {
-                    fill = jValue.at("fill").as_bool();
-                }
-                if (colour != 0 && colour != 4 && colour != 3)
-                {
-                    if (CHECK_LOG_LEVEL(debug))
-                    {
-                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
-                    }
-                    colour = EPDPAINT_WHITE;
-                }
-                int radius = jValue.at("radius").as_integer();
-                json::array pos = jValue.at("position").as_array();
-
-                if (pos.size() != 2)
-                {
-                    return imageRet::BAD_REQUEST;
-                }
-                int posx = pos.at(0).as_integer();
-                int posy = pos.at(1).as_integer();
-
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "the circle info is : " << posx << ":" << posy << ", colour is : " << colour << ", radius is : " << radius);
-                }
-                if (fill)
-                {
-                    globPaint->DrawFilledCircle(posx, posy, radius, colour);
-                }
-                else
-                {
-                    globPaint->DrawCircle(posx, posy, radius, colour);
-                }
+                epaperProcessor::processCircle(jValue);
             }
             else if (path[1] == "rectangle")
             {
-                //{"colour":0,"position":[0,0],"height":100,"wide":100}
-                // note : position is the top left point of rectangle
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "in the rectangle case");
-                }
-
-                int colour = jValue.at("colour").as_integer();
-
-                bool fill = false;
-                if (jValue.has_field("fill"))
-                {
-                    fill = jValue.at("fill").as_bool();
-                }
-                if (colour != 0 && colour != 4 && colour != 3)
-                {
-                    if (CHECK_LOG_LEVEL(debug))
-                    {
-                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
-                    }
-                    colour = EPDPAINT_WHITE;
-                }
-                int height = jValue.at("height").as_integer();
-                int wide = jValue.at("wide").as_integer();
-                json::array pos = jValue.at("position").as_array();
-
-                if (pos.size() != 2)
-                {
-                    return imageRet::BAD_REQUEST;
-                }
-                int posx = pos.at(0).as_integer();
-                int posy = pos.at(1).as_integer();
-
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "the rectangle info is : " << posx << ":" << posy << ", colour is : " << colour << ", height is : " << height << ", wide is : " << wide);
-                }
-                if (fill)
-                {
-                    globPaint->DrawFilledRectangle(posx, posy, posx + wide, posy + height, colour);
-                }
-                else
-                {
-                    globPaint->DrawRectangle(posx, posy, posx + wide, posy + height, colour);
-                }
+                epaperProcessor::processRectangle(jValue);
             }
             else if (path[1] == "point")
             {
-                // {"colour":0,"position":[0,0]}
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "in the point case");
-                }
-
-                int colour = jValue.at("colour").as_integer();
-                if (colour != 0 && colour != 4 && colour != 3)
-                {
-                    if (CHECK_LOG_LEVEL(debug))
-                    {
-                        __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
-                    }
-                    colour = EPDPAINT_WHITE;
-                }
-                json::array pos = jValue.at("position").as_array();
-
-                if (pos.size() != 2)
-                {
-                    return imageRet::BAD_REQUEST;
-                }
-                int posx = pos.at(0).as_integer();
-                int posy = pos.at(1).as_integer();
-
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "the point info is : " << posx << ":" << posy << ", colour is : " << colour);
-                }
-                globPaint->DrawPixel(posx, posy, colour);
+                epaperProcessor::processPoint(jValue);
+            }
+            else if (path[1] == "string")
+            {
+                epaperProcessor::processString(jValue);
+            }
+            else if (path[1] == "group")
+            {
+                epaperProcessor::processGroup(jValue);
             }
             else
             {
@@ -344,85 +213,16 @@ public:
                 {
                     __LOG(debug, "not spuuort path : " << path[1]);
                 }
-                return imageRet::NOT_SUPPORT;
+                return epaperRet::NOT_SUPPORT;
             }
 
             globPaint->DisplayFrame();
 
-            return imageRet::SUCCESS;
+            return epaperRet::SUCCESS;
         }
-        else if (path[0] == "string")
-        {
-            if (CHECK_LOG_LEVEL(debug))
-            {
-                __LOG(debug, "in the string case");
-            }
-            //{"colour":0,"position":[0,0],"content":"test string", "font":8}
-
-            int colour = jValue.at("colour").as_integer();
-
-            if (colour != 0 && colour != 4 && colour != 3)
-            {
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "unsupport colour, use white as default, colour is : " << colour);
-                }
-                colour = EPDPAINT_WHITE;
-            }
-
-            json::array pos = jValue.at("position").as_array();
-
-            if (pos.size() != 2)
-            {
-                return imageRet::BAD_REQUEST;
-            }
-            int posx = pos.at(0).as_integer();
-            int posy = pos.at(1).as_integer();
-
-            auto content = jValue.at("content").as_string();
-
-            int font = jValue.at("font").as_integer();
-            if (font == 8)
-            {
-                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font8, colour);
-            }
-            else if (font == 12)
-            {
-                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font12, colour);
-            }
-            else if (font == 16)
-            {
-                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font16, colour);
-            }
-            else if (font == 20)
-            {
-                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font20, colour);
-            }
-            else if (font == 24)
-            {
-                globPaint->DrawStringAt(posx, posy, content.c_str(), &Font24, colour);
-            }
-            else
-            {
-                if (CHECK_LOG_LEVEL(debug))
-                {
-                    __LOG(debug, "unsupported font, font is : " << font);
-                }
-                return imageRet::BAD_REQUEST;
-            }
-            globPaint->DisplayFrame();
-            return imageRet::SUCCESS;
-        }
-
         else
         {
-            // path.size  ==1 case
-
-            if (CHECK_LOG_LEVEL(debug))
-            {
-                __LOG(debug, "path size is : " << path.size());
-            }
-            return imageRet::NOT_SUPPORT;
+            return epaperRet::NOT_SUPPORT;
         }
     }
 

@@ -325,6 +325,10 @@ public:
             }
         } while (x_pos <= 0);
     }
+    void DrawPicture()
+    {
+        
+    }
 
     void DisplayFrame()
     {
