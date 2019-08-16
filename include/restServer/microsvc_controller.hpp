@@ -66,6 +66,10 @@ public:
 
     void handlePost(http_request message) override
     {
+        if (CHECK_LOG_LEVEL(debug))
+        {
+            __LOG(debug, "get a post message : " << message.to_string());
+        }
         handleMessage(message, methods::POST);
     }
 
@@ -83,7 +87,16 @@ public:
     }
     void handleOptions(http_request message) override
     {
-        message.reply(status_codes::NotImplemented, responseNotImpl(methods::OPTIONS));
+        if (CHECK_LOG_LEVEL(debug))
+        {
+            __LOG(debug, "get a option message : "<< message.to_string());
+        }
+        http_response response(status_codes::OK);
+        response.headers().add(U("Allow"), U("GET, POST, OPTIONS, PATCH"));
+        response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+        response.headers().add(U("Access-Control-Allow-Methods"), U("GET, POST, OPTIONS, PATCH"));
+        response.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type"));
+        message.reply(response);
     }
     void handleTrace(http_request message) override
     {
@@ -104,6 +117,7 @@ public:
         _listener.support(methods::POST, std::bind(&MicroserviceController::handlePost, this, std::placeholders::_1));
         _listener.support(methods::DEL, std::bind(&MicroserviceController::handleDelete, this, std::placeholders::_1));
         _listener.support(methods::PATCH, std::bind(&MicroserviceController::handlePatch, this, std::placeholders::_1));
+        _listener.support(methods::OPTIONS, std::bind(&MicroserviceController::handleOptions, this, std::placeholders::_1));
     }
     enum class epaperRet
     {
@@ -185,6 +199,7 @@ public:
     void handleMessage(http_request message, const http::method &method)
     {
         auto path = requestPath(message);
+        message.headers().add(U("Access-Control-Allow-Origin"), U("*"));
         if (!path.empty())
         {
             web::json::value jValue;
@@ -225,6 +240,7 @@ public:
             message.reply(status_codes::NotFound);
         }
     }
+
 private:
     static json::value responseNotImpl(const http::method &method)
     {

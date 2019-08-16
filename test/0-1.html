@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vue Todo</title>
+    <style>
+        .finished {
+            text-decoration: line-through;
+        }
+
+        .selected {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div id="todo-app">
+        <span>剩余 {{leftTodosCount}} 项未完成 ---</span>
+        <span>筛选：
+            <input type="button" value="全部" class="selected" @click="intention='all'" />
+            <input type="button" value="进行中" @click="intention='ongoing'" />
+            <input type="button" value="已完成" @click="intention='finished'" />
+            <input type="button" value="清除已完成" @click="clearCompleted">
+            <input type="button" value="清除全部" @click="clearAll">
+        </span>
+        <ul>
+            <li v-for='todo in filteredTodos' :key='todo.id'>
+                <span :class="{finished: todo.finished}" @dblclick="editTodo(todo)">{{ todo.title }}</span>
+                <input type="button" value="标为完成" @click="markAsCompleted(todo)" />
+                <input type="button" value="删除" @click="removeTodo(todo)" />
+                <input type="text" value="编辑 todo..." v-focus="true" v-if="editedTodo!==null && editedTodo.id===todo.id"
+                    v-model="todo.title" @keyup.enter="editDone(todo)" @keyup.esc="cancelEdit(todo)" />
+            </li>
+        </ul>
+        <input type="text" placeholder="添加 todo" v-model="newTodoTitle" @keyup.enter="addTodo" />
+        <input type="button" value="全部标为完成" @click="markAllAsCompleted" />
+    </div>
+    <script src="https://unpkg.com/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script>
+        var STORAGE_KEY = 'vue2.x-todo-tutorial';
+        var todoStorage = {
+            fetch: function () {
+                var todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                todos.forEach(function (todo, index) {
+                    todo.id = index
+                });
+                todoStorage.uid = todos.length;
+                return todos
+            },
+            save: function (todos) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+            }
+        };
+        let id = 0;
+        var app = new Vue({
+            el: '#todo-app',
+            data: function () {
+                return {
+                    todos: todoStorage.fetch(),
+                    newTodoTitle: '',
+                    editedTodo: null, // 用户暂存编辑前的 todo 状态
+                    intention: 'all', // 默认为 all
+                }
+            },
+            // 监测 todos 列表的变化，将变化存储到 local storage
+            watch: {
+                todos: {
+                    handler: function (todos) {
+                        todoStorage.save(todos);
+                    },
+                    deep: true
+                }
+            },
+            methods: {
+                addTodo: function () {
+                    this.todos.push(
+                        // 修改后的 todo 模型
+                        { id: todoStorage.uid++, title: this.newTodoTitle, completed: false }
+                    );
+                    this.newTodoTitle = ''
+
+
+
+                    var doubanURL = 'http://10.242.146.124:6502/v1/api/epaper/circle';
+                    $.ajax({
+                        type: 'POST',
+                        url: doubanURL,
+                        crossDomain: true,
+                        dataType: 'json',
+                        contentType: "application/json",
+                        data: '{"colour":4,"position":[200,200],"radius":100, "fill":true}',
+                        //dataType: 'JSONP',
+                     
+                        success: function (data) {
+                            console.log(data);
+                        }
+                    });
+
+
+
+                },
+                markAsCompleted: function (todo) {
+                    todo.finished = true
+                },
+                removeTodo: function (todo) {
+                    this.todos.splice(this.todos.indexOf(todo), 1)
+                },
+                editTodo: function (todo) {
+                    this.editedTodo = { id: todo.id, title: todo.title, finished: todo.finished }
+                },
+                editDone: function (todo) {
+                    this.editedTodo = null
+                },
+                cancelEdit: function (todo) {
+                    todo.title = this.editedTodo.title;
+                    this.editedTodo = null
+                },
+                markAllAsCompleted: function () {
+                    this.todos.map(function (todo) {
+                        if (!todo.finished) {
+                            todo.finished = true
+                        }
+                    })
+                },
+                clearCompleted: function () {
+                    this.todos = this.todos.filter(todo => !todo.finished)
+                },
+                clearAll: function () {
+                    this.todos = []
+                },
+            },
+            directives: {
+                focus: {
+                    inserted: function (el) {
+                        el.focus()
+                    }
+                }
+            },
+            computed: {
+                leftTodos: function () {
+                    return this.todos.filter(todo => !todo.finished)
+                },
+                leftTodosCount: function () {
+                    return this.todos.filter(todo => !todo.finished).length
+                },
+                filteredTodos: function () {
+                    if (this.intention === 'ongoing') {
+                        return this.todos.filter(todo => !todo.finished)
+                    } else if (this.intention === 'finished') {
+                        return this.todos.filter(todo => todo.finished)
+                    } else {
+                        // 其它未定义的意图我们为其返回全部 todos，
+                        // 这里面已经包含了 all 意图了
+                        return this.todos
+                    }
+                },
+            },
+
+        })
+
+    </script>
+</body>
+
+</html>
