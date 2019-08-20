@@ -89,13 +89,13 @@ public:
     {
         if (CHECK_LOG_LEVEL(debug))
         {
-            __LOG(debug, "get a option message : "<< message.to_string());
+            __LOG(debug, "get a option message : " << message.to_string());
         }
         http_response response(status_codes::OK);
         response.headers().add(U("Allow"), U("GET, POST, OPTIONS, PATCH"));
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
         response.headers().add(U("Access-Control-Allow-Methods"), U("GET, POST, OPTIONS, PATCH"));
-        response.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type"));
+        response.headers().add(U("Access-Control-Allow-Headers"), U("Origin, X-Requested-With, Content-Type, Accept, content-type1"));
         message.reply(response);
     }
     void handleTrace(http_request message) override

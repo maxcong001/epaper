@@ -71,7 +71,7 @@ content-type: application/json
       "height": 30,
       "position": [
         0,
-        194
+        200
       ],
       "wide": 640
     }
@@ -83,7 +83,7 @@ content-type: application/json
       "font": 24,
       "position": [
         20,
-        10
+        3
       ]
     }
   },
@@ -94,7 +94,7 @@ content-type: application/json
       "font": 24,
       "position": [
         20,
-        200
+        203
       ]
     }
   },
@@ -112,7 +112,7 @@ content-type: application/json
   {
     "string": {
       "colour": 0,
-      "content": "2. ",
+      "content": "2. ML code jam",
       "font": 24,
       "position": [
         20,
@@ -156,7 +156,7 @@ content-type: application/json
   {
     "string": {
       "colour": 0,
-      "content": "1. ",
+      "content": "1. js study",
       "font": 24,
       "position": [
         20,
