@@ -67,6 +67,7 @@ public:
             {
                 __LOG(debug, "invalid host type : " << endpointURI.host() << "will use IPv4 as default");
             }
+            endpointBuilder.set_host(NetworkUtils::hostIP4());
         }
         endpointBuilder.set_port(endpointURI.port());
         endpointBuilder.set_path(endpointURI.path());
