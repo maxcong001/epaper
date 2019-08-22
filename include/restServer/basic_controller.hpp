@@ -31,6 +31,7 @@
 #include "restServer/network_utils.hpp"
 #include <pplx/pplxtasks.h>
 #include "controller.hpp"
+#include "logger/logger.hpp"
 
 using namespace web;
 using namespace http::experimental::listener;
@@ -62,12 +63,31 @@ public:
         }
         else
         {
-            endpointBuilder.set_host("10.242.146.124");
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "invalid host type : " << endpointURI.host() << "will use IPv4 as default");
+            }
         }
         endpointBuilder.set_port(endpointURI.port());
         endpointBuilder.set_path(endpointURI.path());
+        /* https related
+        http_listener_config conf;
+        conf.set_ssl_context_callback([](boost::asio::ssl::context &ctx) {
+            ctx.set_options(boost::asio::ssl::context::default_workarounds);
 
+            // Password callback needs to be set before setting cert and key.
+            ctx.set_password_callback([](std::size_t max_length, boost::asio::ssl::context::password_purpose purpose) {
+                return "password";
+            });
+
+            ctx.use_certificate_file("cert.pem", boost::asio::ssl::context::pem);
+            ctx.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
+            ctx.use_certificate_chain_file("chain.pem");
+        });
+*/
         _listener = http_listener(endpointBuilder.to_uri());
+        //_listener = http_listener(endpointBuilder.to_uri(), conf);
+        // _listener = http_listener("https://10.242.146.124:6502", conf);
     }
     std::string endpoint() const
     {
