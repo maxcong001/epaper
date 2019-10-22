@@ -139,3 +139,66 @@ content-type: application/json
     }
   }
 ]
+### 
+PATCH http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
+content-type: application/json
+
+[
+  {"rotate":1},
+  {
+    "string": {
+      "colour": 0,
+      "content": "test string",
+      "font": 24,
+      "position": [
+        100,
+        100
+      ]
+    }
+  },
+  {
+    "point": {
+      "colour": 0,
+      "position": [
+        100,
+        100
+      ]
+    }
+  },
+  {
+    "rectangle": {
+      "colour": 0,
+      "fill": true,
+      "height": 100,
+      "position": [
+        0,
+        0
+      ],
+      "wide": 100
+    }
+  },
+  {
+    "circle": {
+      "colour": 4,
+      "fill": true,
+      "position": [
+        200,
+        200
+      ],
+      "radius": 100
+    }
+  },
+  {
+    "line": {
+      "colour": 4,
+      "positionx": [
+        100,
+        100
+      ],
+      "positiony": [
+        400,
+        400
+      ]
+    }
+  }
+]

@@ -71,6 +71,17 @@ public:
         Paint::getInstance()->DrawLine(posxx, posxy, posyx, posyy, colour);
         return epaperRet::SUCCESS;
     }
+    static epaperRet processRotate(web::json::value jValue)
+    {
+
+        int rotate = jValue.at("picRotate").as_integer();
+        if (CHECK_LOG_LEVEL(debug))
+        {
+            __LOG(debug, "process rotate : " << rotate);
+        }
+        Paint::getInstance()->SetRotate(rotate);
+        return epaperRet::SUCCESS;
+    }
     static epaperRet processCircle(web::json::value jValue)
     {
         if (CHECK_LOG_LEVEL(debug))
@@ -266,6 +277,10 @@ public:
     {
         if (!jValueMsg.is_array())
         {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "not a group");
+            }
             return epaperRet::BAD_REQUEST;
         }
 
@@ -280,6 +295,10 @@ public:
             if (jValue.has_field("image"))
             {
                 processImage(jValue.at("image"));
+            }
+            if (jValue.has_field("rotate"))
+            {
+                processRotate(jValue.at("rotate"));
             }
             if (jValue.has_field("circle"))
             {

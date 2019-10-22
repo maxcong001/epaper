@@ -52,6 +52,7 @@ POST http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
 content-type: application/json
 
 [
+  {"rotate": 1},
   {
     "rectangle": {
       "colour": 4,

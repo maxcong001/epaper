@@ -160,23 +160,51 @@ public:
             }
             else if (path[1] == "circle")
             {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "path with epaper/circle");
+                }
                 epaperProcessor::processCircle(jValue);
             }
             else if (path[1] == "rectangle")
             {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "path with epaper/rectangle");
+                }
                 epaperProcessor::processRectangle(jValue);
             }
             else if (path[1] == "point")
             {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "path with epaper/point");
+                }
                 epaperProcessor::processPoint(jValue);
             }
             else if (path[1] == "string")
             {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "path with epaper/string");
+                }
                 epaperProcessor::processString(jValue);
             }
             else if (path[1] == "group")
             {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "path with epaper/group");
+                }
                 epaperProcessor::processGroup(jValue);
+            }
+            else if (path[1] == "picRotate")
+            {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "path with epaper/picRotate");
+                }
+                epaperProcessor::processRotate(jValue);
             }
             else
             {

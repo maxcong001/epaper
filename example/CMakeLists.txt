@@ -14,7 +14,7 @@ ADD_EXECUTABLE(${EXAMPLE_TARGET} ${EXAMPLE_SOURCES})
 
 LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib)
 
-TARGET_LINK_LIBRARIES(${EXAMPLE_TARGET} ${PROJECT_NAME} pthread boost_log boost_log_setup boost_system boost_thread cpprest crypto bcm2835 ssl)
+TARGET_LINK_LIBRARIES(${EXAMPLE_TARGET}  pthread boost_log boost_log_setup boost_system boost_thread cpprest crypto bcm2835 ssl)
 
 SET_TARGET_PROPERTIES(${EXAMPLE_TARGET} PROPERTIES OUTPUT_NAME ${EXAMPLE_BINARY})
 
