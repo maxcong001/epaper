@@ -55,17 +55,27 @@ public:
         endpointBuilder.set_scheme(endpointURI.scheme());
         if (endpointURI.host() == "host_auto_ip4")
         {
-            endpointBuilder.set_host(NetworkUtils::hostIP4());
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "rest server will listen on : " << NetworkUtils::hostIP4());
+            }
+            //endpointBuilder.set_host(NetworkUtils::hostIP4());
+            endpointBuilder.set_host("192.168.31.120");
         }
         else if (endpointURI.host() == "host_auto_ip6")
         {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "rest server will listen on : " << NetworkUtils::hostIP6());
+            }
             endpointBuilder.set_host(NetworkUtils::hostIP6());
         }
         else
         {
             if (CHECK_LOG_LEVEL(debug))
             {
-                __LOG(debug, "invalid host type : " << endpointURI.host() << "will use IPv4 as default");
+                __LOG(debug, "invalid host type : " << endpointURI.host() << "will use IPv4 as default"
+                                                    << ", IP is : " << NetworkUtils::hostIP4());
             }
             endpointBuilder.set_host(NetworkUtils::hostIP4());
         }
@@ -86,6 +96,7 @@ public:
             ctx.use_certificate_chain_file("chain.pem");
         });
 */
+
         _listener = http_listener(endpointBuilder.to_uri());
         //_listener = http_listener(endpointBuilder.to_uri(), conf);
         // _listener = http_listener("https://10.242.146.124:6502", conf);

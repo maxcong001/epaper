@@ -198,13 +198,13 @@ public:
                 }
                 epaperProcessor::processGroup(jValue);
             }
-            else if (path[1] == "picRotate")
+            else if (path[1] == "rotate")
             {
                 if (CHECK_LOG_LEVEL(debug))
                 {
                     __LOG(debug, "path with epaper/picRotate");
                 }
-                epaperProcessor::processRotate(jValue);
+                epaperProcessor::processRotate(jValue.at("rotate").as_integer());
             }
             else
             {

@@ -71,10 +71,8 @@ public:
         Paint::getInstance()->DrawLine(posxx, posxy, posyx, posyy, colour);
         return epaperRet::SUCCESS;
     }
-    static epaperRet processRotate(web::json::value jValue)
+    static epaperRet processRotate(int rotate)
     {
-
-        int rotate = jValue.at("picRotate").as_integer();
         if (CHECK_LOG_LEVEL(debug))
         {
             __LOG(debug, "process rotate : " << rotate);
@@ -298,7 +296,7 @@ public:
             }
             if (jValue.has_field("rotate"))
             {
-                processRotate(jValue.at("rotate"));
+                processRotate(jValue.at("rotate").as_integer());
             }
             if (jValue.has_field("circle"))
             {
