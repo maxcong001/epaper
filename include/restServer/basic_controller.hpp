@@ -60,7 +60,7 @@ public:
                 __LOG(debug, "rest server will listen on : " << NetworkUtils::hostIP4());
             }
             //endpointBuilder.set_host(NetworkUtils::hostIP4());
-            endpointBuilder.set_host("192.168.31.120");
+            //endpointBuilder.set_host("192.168.31.120");
         }
         else if (endpointURI.host() == "host_auto_ip6")
         {

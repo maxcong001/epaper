@@ -140,7 +140,7 @@ content-type: application/json
   }
 ]
 ### 
-PATCH http://192.168.31.120:6502/v1/api/epaper/group HTTP/1.1
+PATCH http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
 content-type: application/json
 
 [
