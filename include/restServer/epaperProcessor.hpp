@@ -1,4 +1,10 @@
 #pragma once
+#include <string>
+#include <iconv.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
 #include <cpprest/http_msg.h>
 #include <logger/logger.hpp>
 #include "epaper/epd7in5bpaint.hpp"
@@ -209,63 +215,8 @@ public:
         Paint::getInstance()->DrawPixel(posx, posy, colour);
         return epaperRet::SUCCESS;
     }
-    static printString(string inStr, int font)
-    {
-        if (font == 24)
-        {
-            for (int i = 0; i < inStr.length(); i++)
-            {
-                if (inStr[i] <= 0x7F)
-                {
-                    // ASCII
-                    if (CHECK_LOG_LEVEL(debug))
-                    {
-                        __LOG(debug, "receive ASCII char :" + inStr[i]);
-                    }
-                }
-                else
-                {
-                    char chs[32];
-                    Bytes_Read_from_HZK16((unsigned char *)out, chs);
-                    Bytes_Display(chs);
-                }
-            }
-        }
-    }
-    static void Bytes_Read_from_HZK16(unsigned char *s, char *const chs)
-    {
-        FILE *fp;
-        unsigned long offset;
 
-        offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 32; //根据内码找出汉字在HZK16�?的偏移位�?
-
-        if ((fp = fopen("HZK16", "r")) == NULL)
-            return;                  //打开字库文件
-        fseek(fp, offset, SEEK_SET); //文件指针偏移到�?�找的汉字�??
-        fread(chs, 32, 1, fp);       //读取该汉字的字模
-        fclose(fp);
-    }
-    static void Bytes_Display(char *const chs)
-    {
-        int i, j;
-
-        for (i = 0; i < 32; i++) //显示
-        {
-            if (i % 2 == 0)
-                printf("\n");
-            for (j = 7; j >= 0; j--)
-            {
-                if (chs[i] & (0x1 << j))
-                {
-                    printf("O");
-                }
-                else
-                {
-                    printf("-");
-                }
-            }
-        }
-    }
+ 
     static epaperRet processString(web::json::value jValue)
     {
         if (CHECK_LOG_LEVEL(debug))

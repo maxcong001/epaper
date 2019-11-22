@@ -2,7 +2,7 @@
 
 #include "BCM2835Driver.hpp"
 #include "stdio.h"
-
+#include <logger/logger.hpp>
 // Display resolution
 #define EPD_WIDTH 640
 #define EPD_HEIGHT 384
