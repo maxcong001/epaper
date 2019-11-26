@@ -216,7 +216,6 @@ public:
         return epaperRet::SUCCESS;
     }
 
- 
     static epaperRet processString(web::json::value jValue)
     {
         if (CHECK_LOG_LEVEL(debug))
@@ -270,9 +269,8 @@ public:
             {
                 __LOG(debug, "receive content : " << content);
             }
-            printString(content, 24);
 
-            //Paint::getInstance()->DrawStringAt(posx, posy, content.c_str(), &Font24, colour);
+            Paint::getInstance()->printString(content, 24, posx, posy, colour, EPDPAINT_WHITE);
         }
         else
         {
