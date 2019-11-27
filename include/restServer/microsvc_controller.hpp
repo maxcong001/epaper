@@ -217,7 +217,10 @@ public:
             }
 
             globPaint->DisplayFrame();
-
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "display frame return");
+            }
             return epaperRet::SUCCESS;
         }
         else
