@@ -46,7 +46,7 @@ content-type: application/json
 POST http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
 content-type: application/json
 
-{"colour":0,"position":[200,200],"content":"test string", "font":24}
+{"colour":0,"position":[200,200],"content":"test string 测试", "font":24}
 ###
 POST http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
 content-type: application/json

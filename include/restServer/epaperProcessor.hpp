@@ -1,4 +1,10 @@
 #pragma once
+#include <string>
+#include <iconv.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
 #include <cpprest/http_msg.h>
 #include <logger/logger.hpp>
 #include "epaper/epd7in5bpaint.hpp"
@@ -209,6 +215,7 @@ public:
         Paint::getInstance()->DrawPixel(posx, posy, colour);
         return epaperRet::SUCCESS;
     }
+
     static epaperRet processString(web::json::value jValue)
     {
         if (CHECK_LOG_LEVEL(debug))
@@ -258,7 +265,12 @@ public:
         }
         else if (font == 24)
         {
-            Paint::getInstance()->DrawStringAt(posx, posy, content.c_str(), &Font24, colour);
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "receive content : " << content);
+            }
+
+            Paint::getInstance()->printString(content, 24, posx, posy, colour, EPDPAINT_WHITE);
         }
         else
         {

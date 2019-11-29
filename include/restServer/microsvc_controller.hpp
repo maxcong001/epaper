@@ -30,6 +30,7 @@
 #include "logger/logger.hpp"
 #include "epaper/epd7in5bpaint.hpp"
 #include "restServer/epaperProcessor.hpp"
+
 using namespace cfx;
 
 class MicroserviceController : public BasicController, Controller

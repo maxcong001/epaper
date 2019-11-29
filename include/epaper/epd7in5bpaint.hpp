@@ -14,6 +14,12 @@
 #include "fonts.hpp"
 #include "Epd7in5bDriver.hpp"
 #include <string.h>
+#include <logger/logger.hpp>
+#include <iconv.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
 
 class Paint
 {
@@ -108,6 +114,44 @@ public:
             break;
         }
     }
+    int getMaxAbsWidth()
+    {
+        if (this->rotate == ROTATE_0 || this->rotate == ROTATE_180)
+        {
+            return this->width;
+        }
+        else if (this->rotate == ROTATE_90 || this->rotate == ROTATE_270)
+        {
+            return this->height;
+        }
+        else
+        {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "unsupported rotate, rotate is : " << this->rotate);
+            }
+            return 0;
+        }
+    }
+    int getMaxAbsHeight()
+    {
+        if (this->rotate == ROTATE_0 || this->rotate == ROTATE_180)
+        {
+            return this->height;
+        }
+        else if (this->rotate == ROTATE_90 || this->rotate == ROTATE_270)
+        {
+            return this->width;
+        }
+        else
+        {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "unsupported rotate, rotate is : " << this->rotate);
+            }
+            return 0;
+        }
+    }
     void DrawPixel(int x, int y, int color)
     {
         int point_temp;
@@ -154,7 +198,7 @@ public:
         }
     }
 
-    void DrawCharAt(int x, int y, char ascii_char, const sFONT *font, int color)
+    void DrawCharAt(int x, int y, char ascii_char, const sFONT *font, int color, int bcolour = EPDPAINT_WHITE)
     {
         int i, j;
         unsigned int char_offset = (ascii_char - ' ') * font->Height * (font->Width / 8 + (font->Width % 8 ? 1 : 0));
@@ -327,12 +371,308 @@ public:
     }
     void DrawPicture()
     {
-        
     }
 
     void DisplayFrame()
     {
         epd.DisplayFrame1(GetImage());
+    }
+
+    int do_convert(iconv_t cd, const char *from, size_t from_size, std::string *to)
+    {
+        char *in_buf_ptr = const_cast<char *>(from);
+        size_t in_bytes_left = from_size;
+        size_t out_bytes = in_bytes_left * 3 + 1;
+        size_t out_bytes_left = out_bytes;
+        std::string out(out_bytes_left, '\0');
+        char *out_buf_start = const_cast<char *>(out.c_str());
+        char *out_buf_ptr = out_buf_start;
+
+        int bytes = iconv(cd, &in_buf_ptr, &in_bytes_left, &out_buf_ptr, &out_bytes_left);
+        if (-1 == bytes)
+            return errno;
+
+        to->assign(out_buf_start, out_bytes - out_bytes_left);
+        return 0;
+    }
+
+    std::string convert(const std::string &from_charset, const std::string &to_charset,
+                        const std::string &from,
+                        bool ignore_error, bool skip_error)
+    {
+        std::string result;
+        char *in_buf = const_cast<char *>(from.c_str());
+        size_t in_bytes = from.size();
+        size_t in_bytes_left = in_bytes;
+        iconv_t cd = iconv_open(to_charset.c_str(), from_charset.c_str());
+
+        if ((iconv_t)(-1) == cd)
+        {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "iconv_open return error, error number is : " << errno);
+            }
+            return "";
+        }
+        while (in_bytes_left > 0)
+        {
+            int errcode;
+            size_t out_bytes = in_bytes_left * 3 + 1;
+            size_t out_bytes_left = out_bytes;
+            std::string out(out_bytes_left, '\0');
+            char *out_buf = const_cast<char *>(out.c_str());
+            char *out_buf_start = out_buf;
+            char *in_buf_start = in_buf;
+
+            int bytes = iconv(cd, &in_buf, &in_bytes_left, &out_buf, &out_bytes_left);
+            if (bytes != -1)
+            {
+                result.append(out_buf_start, out_bytes - out_bytes_left);
+                break;
+            }
+            else if (!ignore_error)
+            {
+                errcode = errno;
+                iconv_close(cd);
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "iconv return error, error number is : " << errno);
+                }
+                return result;
+            }
+            else
+            {
+                // EILSEQ An invalid multibyte sequence has been encountered in the input.
+                // EINVAL An incomplete multibyte sequence has been encountered in the input.
+                if ((errno != EINVAL) &&
+                    (errno != EILSEQ))
+                {
+                    // E2BIG  There is not sufficient room at *outbuf.
+                    errcode = errno;
+                    iconv_close(cd);
+                    if (CHECK_LOG_LEVEL(debug))
+                    {
+                        __LOG(debug, "iconv return error, error number is : " << errno);
+                    }
+                    return result;
+                }
+                else
+                {
+
+                    if (in_buf != in_buf_start)
+                    {
+                        std::string str;
+                        errcode = do_convert(cd, in_buf_start, in_buf - in_buf_start, &str);
+                        if (errcode != 0)
+                        {
+                            iconv_close(cd);
+                            if (CHECK_LOG_LEVEL(debug))
+                            {
+                                __LOG(debug, "do_convert return error, error number is : " << errno);
+                            }
+                            return result;
+                        }
+
+                        result.append(str);
+                    }
+
+                    if (!skip_error)
+                    {
+                        result.append(in_buf, 1);
+                    }
+
+                    --in_bytes_left;
+                    ++in_buf;
+                }
+            }
+        }
+
+        if (-1 == iconv_close(cd))
+        {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "iconv_close return error, error number is : " << errno);
+            }
+            return result;
+        }
+
+        return result;
+    }
+
+    std::string utf8_to_gb2312(const std::string &from, bool ignore_error = false, bool skip_error = false)
+    {
+        return convert("utf-8", "gb2312", from, ignore_error, skip_error);
+    }
+
+    void printString(std::string inStr, int font, int posx, int posy, int colour, int bcolour)
+    {
+        std::string outStr = utf8_to_gb2312(inStr);
+
+        for (unsigned int i = 0; i < outStr.length();)
+        {
+            if (outStr[i] <= 0x7F)
+            {
+                printf("receive ASCII code : %c\n", outStr[i]);
+                if (font == 8)
+                {
+                    display_word(&outStr[i], &Font8, false, posx, posy, colour, bcolour);
+                }
+                else if (font == 12)
+                {
+                    display_word(&outStr[i], &Font12, false, posx, posy, colour, bcolour);
+                }
+                else if (font == 16)
+                {
+                    display_word(&outStr[i], &Font16, false, posx, posy, colour, bcolour);
+                }
+                else if (font == 20)
+                {
+                    display_word(&outStr[i], &Font20, false, posx, posy, colour, bcolour);
+                }
+                else if (font == 24)
+                {
+                    display_word(&outStr[i], &Font24, false, posx, posy, colour, bcolour);
+                }
+                else
+                {
+                    if (CHECK_LOG_LEVEL(debug))
+                    {
+                        __LOG(debug, "unsupported font, font is : " << font);
+                    }
+                    return;
+                }
+                i++;
+            }
+            else
+            {
+                if (font == 12)
+                {
+                    display_word(&outStr[i], &HZFont12, true, posx, posy, colour, bcolour);
+                }
+                else if (font == 14)
+                {
+                    display_word(&outStr[i], &HZFont14, true, posx, posy, colour, bcolour);
+                }
+                else if (font == 16)
+                {
+                    display_word(&outStr[i], &HZFont16, true, posx, posy, colour, bcolour);
+                }
+                else if (font == 24)
+                {
+                    display_word(&outStr[i], &HZFont24, true, posx, posy, colour, bcolour);
+                }
+                else if (font == 32)
+                {
+                    display_word(&outStr[i], &HZFont32, true, posx, posy, colour, bcolour);
+                }
+                else if (font == 40)
+                {
+                    display_word(&outStr[i], &HZFont40, true, posx, posy, colour, bcolour);
+                }
+                else if (font == 48)
+                {
+                    display_word(&outStr[i], &HZFont48, true, posx, posy, colour, bcolour);
+                }
+                else
+                {
+                    if (CHECK_LOG_LEVEL(debug))
+                    {
+                        __LOG(debug, "unsupported font, font is : " << font);
+                    }
+                    return;
+                }
+
+                i += 2;
+            }
+        }
+    }
+
+    void display_word(char *oneChar, const sFONT *font, bool isCH, int &posx, int &posy, int colour, int bcolour)
+    {
+        if ((posy + font->Height) <= getMaxAbsHeight())
+        {
+            if ((posx + font->Width) <= getMaxAbsWidth())
+            {
+                posx += font->Width;
+            }
+            else
+            {
+                if ((posy + 2 * font->Height) <= getMaxAbsHeight())
+                {
+                    posx = 0;
+                    posy += font->Height;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            if (isCH)
+            {
+                Bytes_Display(oneChar, font, posx, posy, colour, bcolour);
+            }
+            else
+            {
+                Paint::getInstance()->DrawCharAt(posx, posy, *oneChar, font, colour, bcolour);
+            }
+        }
+        else
+        {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "out of boundry");
+            }
+        }
+    }
+
+    void Bytes_Read_from_HZK(unsigned char *s, char *const chs, const sFONT *font)
+    {
+        FILE *fp;
+        unsigned long offset;
+
+        std::string fileName = "HZK" + std::to_string(font->Height);
+        if (CHECK_LOG_LEVEL(debug))
+        {
+            __LOG(debug, "open HZK lib with name : " << fileName);
+        }
+        offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 32;
+
+        if ((fp = fopen(fileName.c_str(), "r")) == NULL)
+        {
+            if (CHECK_LOG_LEVEL(debug))
+            {
+                __LOG(debug, "open " << fileName << " fail");
+            }
+            return;
+        }
+        fseek(fp, offset, SEEK_SET);
+        fread(chs, (font->Height) * (font->Width) / 8, 1, fp);
+        fclose(fp);
+    }
+
+    void Bytes_Display(char *const s, const sFONT *font, int positionx, int positiony, int fcolour, int bcolour)
+    {
+        char *chs = (char *)malloc((font->Width) * (font->Height) / 8);
+        Bytes_Read_from_HZK((unsigned char *)(s), chs, font);
+
+        int charPos = 0;
+        for (uint16_t i = 0; i < (font->Height); i++)
+        {
+            for (uint16_t j = 0; j < (font->Height); j++)
+            {
+                char tmpChar = chs[charPos + j / 8];
+                if (tmpChar & (0x1 << (8 - (j % 8))))
+                {
+                    DrawPixel(positionx + j, positiony + i, fcolour);
+                }
+                else
+                {
+                    DrawPixel(positionx + j, positiony + i, bcolour);
+                }
+            }
+            charPos += (font->Width / 8);
+        }
+        free(chs);
     }
 
 private:

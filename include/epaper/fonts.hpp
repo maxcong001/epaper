@@ -45,6 +45,48 @@ const sFONT Font20 __attribute__((section("font"))) = {
 
 const sFONT Font24 __attribute__((section("font"))) = {
 	Font24_Table,
-	17, /* Width */
-	24, /* Height */
+	17, 
+	24, 
+};
+
+const sFONT HZFont12 __attribute__((section("font"))) = {
+	Font12_Table,
+	16, 
+	12, 
+};
+
+const sFONT HZFont14 __attribute__((section("font"))) = {
+	Font12_Table,
+	16, 
+	14, 
+};
+
+const sFONT HZFont16 __attribute__((section("font"))) = {
+	Font12_Table,
+	16, 
+	16,
+};
+
+const sFONT HZFont24 __attribute__((section("font"))) = {
+	Font12_Table,
+	24,
+	24, 
+};
+
+const sFONT HZFont32 __attribute__((section("font"))) = {
+	Font12_Table,
+	32, 
+	32, 
+};
+
+const sFONT HZFont40 __attribute__((section("font"))) = {
+	Font12_Table,
+	40, 
+	40,
+};
+
+const sFONT HZFont48 __attribute__((section("font"))) = {
+	Font12_Table,
+	48,
+	48,
 };
