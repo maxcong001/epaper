@@ -45,6 +45,10 @@ int main(int argc, const char *argv[])
 
 	if (globPaint->init() == -1)
 	{
+		if (CHECK_LOG_LEVEL(error))
+		{
+			__LOG(error, "rest server start fail");
+		}
 		return 0;
 	}
 

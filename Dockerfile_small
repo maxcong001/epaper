@@ -36,4 +36,4 @@ COPY --from=builder /lib/arm-linux-gnueabihf/libz.so.1 /lib/arm-linux-gnueabihf/
 COPY --from=builder /lib/arm-linux-gnueabihf/libdl.so.2 /lib/arm-linux-gnueabihf/libdl.so.2
 COPY --from=builder /usr/lib/arm-linux-gnueabihf/libbrotlicommon.so.1 /usr/lib/arm-linux-gnueabihf/libbrotlicommon.so.1
 
-ENTRYPOINT ["/epaper_example"]
+ENTRYPOINT ["./epaper_example"]
