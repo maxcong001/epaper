@@ -247,39 +247,7 @@ public:
         auto content = jValue.at("content").as_string();
 
         int font = jValue.at("font").as_integer();
-        if (font == 8)
-        {
-            Paint::getInstance()->DrawStringAt(posx, posy, content.c_str(), &Font8, colour);
-        }
-        else if (font == 12)
-        {
-            Paint::getInstance()->DrawStringAt(posx, posy, content.c_str(), &Font12, colour);
-        }
-        else if (font == 16)
-        {
-            Paint::getInstance()->DrawStringAt(posx, posy, content.c_str(), &Font16, colour);
-        }
-        else if (font == 20)
-        {
-            Paint::getInstance()->DrawStringAt(posx, posy, content.c_str(), &Font20, colour);
-        }
-        else if (font == 24)
-        {
-            if (CHECK_LOG_LEVEL(debug))
-            {
-                __LOG(debug, "receive content : " << content);
-            }
-
-            Paint::getInstance()->printString(content, 24, posx, posy, colour, EPDPAINT_WHITE);
-        }
-        else
-        {
-            if (CHECK_LOG_LEVEL(debug))
-            {
-                __LOG(debug, "unsupported font, font is : " << font);
-            }
-            return epaperRet::BAD_REQUEST;
-        }
+        Paint::getInstance()->printString(content, font, posx, posy, colour, EPDPAINT_WHITE);
         return epaperRet::SUCCESS;
     }
 

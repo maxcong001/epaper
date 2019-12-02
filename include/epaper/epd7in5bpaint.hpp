@@ -539,7 +539,8 @@ public:
                     {
                         __LOG(debug, "unsupported font, font is : " << font);
                     }
-                    return;
+                    i++;
+                    continue;
                 }
                 i++;
             }
@@ -579,9 +580,10 @@ public:
                     {
                         __LOG(debug, "unsupported font, font is : " << font);
                     }
-                    return;
-                }
 
+                    i += 2;
+                    continue;
+                }
                 i += 2;
             }
         }
@@ -593,27 +595,37 @@ public:
         {
             if ((posx + font->Width) <= getMaxAbsWidth())
             {
+                if (isCH)
+                {
+                    Bytes_Display(oneChar, font, posx, posy, colour, bcolour);
+                }
+                else
+                {
+                    Paint::getInstance()->DrawCharAt(posx, posy, *oneChar, font, colour, bcolour);
+                }
                 posx += font->Width;
             }
             else
             {
+
                 if ((posy + 2 * font->Height) <= getMaxAbsHeight())
                 {
                     posx = 0;
                     posy += font->Height;
+                    if (isCH)
+                    {
+                        Bytes_Display(oneChar, font, posx, posy, colour, bcolour);
+                    }
+                    else
+                    {
+                        Paint::getInstance()->DrawCharAt(posx, posy, *oneChar, font, colour, bcolour);
+                    }
+                    posx += font->Width;
                 }
                 else
                 {
                     return;
                 }
-            }
-            if (isCH)
-            {
-                Bytes_Display(oneChar, font, posx, posy, colour, bcolour);
-            }
-            else
-            {
-                Paint::getInstance()->DrawCharAt(posx, posy, *oneChar, font, colour, bcolour);
             }
         }
         else
@@ -629,13 +641,44 @@ public:
     {
         FILE *fp;
         unsigned long offset;
-
         std::string fileName = "HZK" + std::to_string(font->Height);
         if (CHECK_LOG_LEVEL(debug))
         {
             __LOG(debug, "open HZK lib with name : " << fileName);
         }
-        offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 32;
+        if (font->Height == 12)
+        {
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 24;
+        }
+        else if (font->Height == 14)
+        {
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 28;
+        }
+        else if (font->Height == 16)
+        {
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 32;
+        }
+        else if (font->Height == 24)
+        {
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 72;
+        }
+        else if (font->Height == 32)
+        {
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 128;
+        }
+        else if (font->Height == 40)
+        {
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 200;
+        }
+        else if (font->Height == 48)
+        {
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 288;
+        }
+        else
+        {
+            // default 16
+            offset = ((s[0] - 0xa1) * 94 + (s[1] - 0xa1)) * 32;
+        }
 
         if ((fp = fopen(fileName.c_str(), "r")) == NULL)
         {
@@ -646,13 +689,13 @@ public:
             return;
         }
         fseek(fp, offset, SEEK_SET);
-        fread(chs, (font->Height) * (font->Width) / 8, 1, fp);
+        fread(chs, ((font->Height) / 8 + 1) * (font->Width), 1, fp);
         fclose(fp);
     }
 
     void Bytes_Display(char *const s, const sFONT *font, int positionx, int positiony, int fcolour, int bcolour)
     {
-        char *chs = (char *)malloc((font->Width) * (font->Height) / 8);
+        char *chs = (char *)malloc(((font->Width) / 8 + 1) * (font->Height));
         Bytes_Read_from_HZK((unsigned char *)(s), chs, font);
 
         int charPos = 0;
@@ -661,7 +704,7 @@ public:
             for (uint16_t j = 0; j < (font->Height); j++)
             {
                 char tmpChar = chs[charPos + j / 8];
-                if (tmpChar & (0x1 << (8 - (j % 8))))
+                if (tmpChar & (0x1 << (7 - (j % 8))))
                 {
                     DrawPixel(positionx + j, positiony + i, fcolour);
                 }
