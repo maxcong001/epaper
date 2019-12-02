@@ -14,8 +14,8 @@ for example:
 yourip raspberry    
 
 if you use build image for test, you can run 
-docker run -ti  --privileged --net host -p 6502:6502 b3561d3ee68f bash    
+docker run -ti  --privileged --net host  b3561d3ee68f bash    
 
 
-note: you must run the container in the privileged mode and open port 6502 
+note: you must run the container in the privileged mode and open port 6502 or use host network
 
