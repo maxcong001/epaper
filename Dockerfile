@@ -1,13 +1,14 @@
 from arm32v7/debian AS builder
 
 RUN apt update&&apt install -y libcpprest-dev build-essential libboost-log-dev cmake git wget
-RUN wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz&&tar -zxvf bcm2835-1.60.tar.gz&&cd bcm2835-1.60&&./configure&&make&&make install&&cd ..&&rm -rf *
-RUN git clone https://github.com/maxcong001/epaper.git&&cd epaper&&mkdir build&&cd build&&cmake ..&&make
+RUN mkdir /epaper&&cd /epaper&&wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz&&tar -zxvf bcm2835-1.60.tar.gz&&cd bcm2835-1.60&&./configure&&make&&make install&&cd ..&&rm -rf *
+RUN cd /epaper&&git clone https://github.com/maxcong001/epaper.git&&cd epaper&&mkdir build&&cd build&&cmake ..&&make
 
 
-FROM arm32v7/alpine
-
-COPY --from=builder /home/epaper/build/bin/epaper_example /epaper_example
+#FROM arm32v7/alpine
+FROM arm32v7/debian
+COPY --from=builder /epaper/epaper/include/epaper/HZK* /
+COPY --from=builder /epaper/epaper/build/bin/epaper_example /epaper_example
 COPY --from=builder /lib/arm-linux-gnueabihf/libpthread.so.0 /lib/arm-linux-gnueabihf/libpthread.so.0
 COPY --from=builder /usr/lib/arm-linux-gnueabihf/libboost_log.so.1.67.0 /usr/lib/arm-linux-gnueabihf/libboost_log.so.1.67.0
 COPY --from=builder /usr/lib/arm-linux-gnueabihf/libboost_log_setup.so.1.67.0 /usr/lib/arm-linux-gnueabihf/libboost_log_setup.so.1.67.0

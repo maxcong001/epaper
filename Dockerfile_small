@@ -7,6 +7,7 @@ RUN mkdir /epaper&&cd /epaper&&git clone https://github.com/maxcong001/epaper.gi
 
 #FROM arm32v7/alpine
 FROM arm32v7/debian
+COPY --from=builder /epaper/epaper/include/epaper/HZK* /
 COPY --from=builder /epaper/epaper/build/bin/epaper_example /epaper_example
 COPY --from=builder /lib/arm-linux-gnueabihf/libpthread.so.0 /lib/arm-linux-gnueabihf/libpthread.so.0
 COPY --from=builder /usr/lib/arm-linux-gnueabihf/libboost_log.so.1.67.0 /usr/lib/arm-linux-gnueabihf/libboost_log.so.1.67.0
@@ -36,4 +37,4 @@ COPY --from=builder /lib/arm-linux-gnueabihf/libz.so.1 /lib/arm-linux-gnueabihf/
 COPY --from=builder /lib/arm-linux-gnueabihf/libdl.so.2 /lib/arm-linux-gnueabihf/libdl.so.2
 COPY --from=builder /usr/lib/arm-linux-gnueabihf/libbrotlicommon.so.1 /usr/lib/arm-linux-gnueabihf/libbrotlicommon.so.1
 
-ENTRYPOINT ["./epaper_example"]
+ENTRYPOINT ["/epaper_example"]
