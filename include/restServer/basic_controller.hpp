@@ -47,7 +47,7 @@ public:
     BasicController() = default;
     ~BasicController() = default;
 
-    void setEndpoint(const std::string &value)
+    void setEndpoint(const std::string &value, http_listener_config server_config)
     {
         uri endpointURI(value);
         uri_builder endpointBuilder;
@@ -95,7 +95,7 @@ public:
             ctx.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
             ctx.use_certificate_chain_file("chain.pem");
         });
-*/
+
 
         static const char *self_signed_cert = R"(
 -----BEGIN CERTIFICATE-----
@@ -162,7 +162,7 @@ XzJTD4slrGSJrcpLt/g/Jqqdjg==
                 ctx.use_certificate_chain(cert);
                 ctx.use_private_key(key, boost::asio::ssl::context::pem);
             });
-
+*/
         _listener = http_listener(endpointBuilder.to_uri(), server_config);
         //_listener = http_listener(endpointBuilder.to_uri(), conf);
         // _listener = http_listener("https://10.242.146.124:6502", conf);
