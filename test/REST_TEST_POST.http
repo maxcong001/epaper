@@ -37,7 +37,7 @@ content-type: application/json
 {"colour":0,"position":[0,0]}
 
 ###
-POST http://10.242.146.124:6502/v1/api/epaper/string HTTP/1.1
+POST http://192.168.50.1:6502/v1/api/epaper/string HTTP/1.1
 content-type: application/json
 
 {"colour":0,"position":[10,10],"content":"test string", "font":8}
@@ -46,7 +46,7 @@ content-type: application/json
 POST http://192.168.50.1:6502/v1/api/epaper/string HTTP/1.1
 content-type: application/json
 
-{"colour":0,"position":[0,0],"content":"我我我测试", "font":40}
+{"colour":0,"position":[0,0],"content":"我我我测试", "font":48}
 ###
 POST http://10.242.146.124:6502/v1/api/epaper/group HTTP/1.1
 content-type: application/json
