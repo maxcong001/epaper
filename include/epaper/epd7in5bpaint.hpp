@@ -375,6 +375,10 @@ public:
 
     void DisplayFrame()
     {
+        if (CHECK_LOG_LEVEL(debug))
+        {
+            __LOG(debug, "now display frame");
+        }
         epd.DisplayFrame1(GetImage());
     }
 
