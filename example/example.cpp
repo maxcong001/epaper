@@ -120,8 +120,9 @@ XzJTD4slrGSJrcpLt/g/Jqqdjg==
         boost::asio::const_buffer cert(self_signed_cert, std::strlen(self_signed_cert));
         boost::asio::const_buffer key(private_key, std::strlen(private_key));
 
-        http_listener_config server_config;
-        server_config.set_ssl_context_callback(
+        http_listener_config server_config_sec;
+		http_listener_config server_config;
+        server_config_sec.set_ssl_context_callback(
             [&](boost::asio::ssl::context &ctx) {
                 ctx.set_options(boost::asio::ssl::context::default_workarounds);
                 ctx.use_certificate_chain(cert);
@@ -129,9 +130,8 @@ XzJTD4slrGSJrcpLt/g/Jqqdjg==
             });
 
 
-
 	MicroserviceController server;
-	server.setEndpoint("https://0.0.0.0:6502/v1/api", server_config);
+	server.setEndpoint("http://0.0.0.0:6502/v1/api", server_config);
 
 	try
 	{

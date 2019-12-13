@@ -191,6 +191,14 @@ public:
                 }
                 epaperProcessor::processString(jValue);
             }
+            else if (path[1] == "image")
+            {
+                if (CHECK_LOG_LEVEL(debug))
+                {
+                    __LOG(debug, "path with epaper/image");
+                }
+                epaperProcessor::processImage(jValue);
+            }
             else if (path[1] == "group")
             {
                 if (CHECK_LOG_LEVEL(debug))
