@@ -7,6 +7,7 @@ RUN mkdir /epaper&&cd /epaper&&git clone https://github.com/maxcong001/epaper.gi
 
 #FROM arm32v7/alpine
 FROM arm32v7/debian
+COPY --from=builder /epaper/epaper/example/test.bmp /home/pi/
 COPY --from=builder /epaper/epaper/include/epaper/HZK* /
 COPY --from=builder /epaper/epaper/build/bin/epaper_example /epaper_example
 COPY --from=builder /lib/arm-linux-gnueabihf/libpthread.so.0 /lib/arm-linux-gnueabihf/libpthread.so.0
