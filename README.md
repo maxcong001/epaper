@@ -21,7 +21,7 @@ http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz
 
 if you use build image for test, you can run 
 docker run -ti --privileged --net host cv0031178/epaper:release
-
+docker run -d --privileged --net host cv0031178/epaper:release
 note: 
 1. you must run the container in the privileged mode and open port 6502 or use host network
 2. you need to plugin the epaper, the binary will check if there is epaper.

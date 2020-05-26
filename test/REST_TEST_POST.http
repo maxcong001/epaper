@@ -224,7 +224,7 @@ content-type: application/json
 POST http://192.168.50.1:6502/v1/api/epaper/group HTTP/1.1
 content-type: application/json
 
-[{"image":{"imagepath":"/home/pi/test.bmp","position":[170,60]}},{"string":{"colour":0,"position":[180,0],"content":"本项目二维码", "font":48}}]
+[{"image":{"imagepath":"/home/pi/test.bmp","position":[170,60]}},{"string":{"colour":0,"position":[170,0],"content":"本项目二维码", "font":48}}]
 ###
 POST http://192.168.50.1:6502/v1/api/epaper/group HTTP/1.1
 content-type: application/json
